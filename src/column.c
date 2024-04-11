@@ -4,6 +4,15 @@
 
 #include "column.h"
 
+/**
+ * @brief Compares to blobs of data bytes by bytes
+ * @param d1 Pointer to the first blob of data
+ * @param d2 Pointer to the second blob of data
+ * @param size Size of the blobs
+ * @return 1 if d1 > d2 ; 0 if d1 = d2 ; -1 if d1 < d2
+*/
+int compare_data(void *d1, void *d2, int size);
+
 int get_size(ENUM_TYPE type)
 {
     int s = 0;
@@ -88,7 +97,7 @@ void write_data(void *addr, void *data, ENUM_TYPE type)
 
     case FLOAT:
         *((float *)addr) = *((float *)data);
-        float p = *((float *) addr);
+        float p = *((float *)addr);
         break;
 
     case DOUBLE:
@@ -141,10 +150,26 @@ int insert_value(COLUMN *col, void *value)
             ENUM_TYPE t = col->type[i];
             write_data(col->data[col->size] + s2, value + s2, t);
             s2 += get_size(t);
-            if(t == CHAR && i < col->datasize - 1) {
-                if(col->type[i + 1] != CHAR) {
-                    // Adds padding for the char to fit in a memory block
-                    s2 += 4 - (s2 % 4);
+            if (t == CHAR && i < col->datasize - 1)
+            {
+                if (col->type[i + 1] != CHAR)
+                {
+                    // Adds padding for the char to fit in a memory block, and fills it with 0
+                    for (int j = 0; j < 4 - (s2 % 4); j++)
+                    {
+                        write_data(col->data[col->size] + s2, "\0", CHAR);
+                        s2++;
+                    }
+                }
+            }
+            if(s2 % 8 != 0 && i < col->datasize - 1) {
+                if(get_size(col->type[i + 1]) == 8) {
+                    // Adds padding for the value to fit in a memory block, and fills it with 0
+                    for (int j = 0; j < 4; j++)
+                    {
+                        write_data(col->data[col->size] + s2, "\0", CHAR);
+                        s2++;
+                    }
                 }
             }
         }
@@ -217,7 +242,8 @@ void convert_struct(char *str, int size, void *data, int typec, ENUM_TYPE *typev
     int bc = 0; // Byte counter
     int wc = 0; // Word counter (for char)
     // If the data is NULL we want to only print NULL once, and not overflow with pointers pointing to nothing
-    if(data == NULL) typec = 1;
+    if (data == NULL)
+        typec = 1;
     for (int k = 0; k < typec; k++)
     {
         argv = typev[k];
@@ -225,10 +251,18 @@ void convert_struct(char *str, int size, void *data, int typec, ENUM_TYPE *typev
         int i;
         i = convert_var(s, size, argv, (data + bc));
         bc += get_size(argv);
-        if(argv == CHAR && k < typec - 1) {
-            if(typev[k + 1] != CHAR) {
+        if (argv == CHAR && k < typec - 1)
+        {
+            if (typev[k + 1] != CHAR)
+            {
                 // Takes padding into account
                 bc += 4 - (bc % 4);
+            }
+        }
+        if(bc % 8 != 0 && k < typec - 1) {
+            if(get_size(typev[k + 1]) == 8)
+            {
+                bc += 4;
             }
         }
         int j;
@@ -266,4 +300,64 @@ void print_col(COLUMN *col, int size)
         snprintf(s2, size, "[%d] %s", i, s);
         printf("%s\n", s2);
     }
+}
+
+int compare_val(void *s1, void *s2, ENUM_TYPE *types, int size)
+{
+    unsigned long int s = 0;
+    unsigned long int bc = 0;
+    char res;
+    for (int i = 0; i < size; i++)
+    {
+        s = get_size(types[i]);
+        if (types[i] == STRING)
+        {
+            unsigned long int j = 0;
+
+            char* str1 = *(char **) (s1 + bc);
+            char* str2 = *(char **) (s2 + bc);
+            while(str1[j] != 0 && str2[j] != 0)
+                j++;
+            res = compare_data(str1, str2, j+1);
+        }
+        else
+        {
+            res = compare_data(s1 + bc, s2 + bc, s);
+        }
+        if (res != 0)
+        {
+            return res;
+        }
+        bc += s;
+        // Adds padding for CHAR
+        if (i < size - 1 && types[i] == CHAR)
+        {
+            if (types[i + 1] != CHAR)
+            {
+                bc += 4 - (bc % 4);
+            }
+        }
+        if(bc % 8 != 0 && i < size - 1) {
+            if(get_size(types[i + 1]) == 8)
+            {
+                bc += 4;
+            }
+        }
+    }
+    return 0;
+}
+
+int compare_data(void *d1, void *d2, int size)
+{
+    unsigned long int bc;
+    for (bc = 0; bc < size; bc++)
+    {
+        char a = *(char *)(d1 + bc);
+        char b = *(char *)(d2 + bc);
+        if (a < b)
+            return -1;
+        if (a > b)
+            return 1;
+    }
+    return 0;
 }

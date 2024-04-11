@@ -3,23 +3,22 @@
 
 typedef struct _x
 {
-    int a;
-    char b;
-    char c;
-    char* d;
-    float e;
-    int f;
+    int b;
+    char *a;
 } x;
 
 
 int main(int argc, char const *argv[])
 {
-    COLUMN *mycol = create_column("Column 1", 6, INT, CHAR, CHAR, STRING, FLOAT, INT);
-    x a = {1, 'a', 'b', "hello", .3, 2};
-    x c = {2, 'b', 'c', "world", .2, 57};
+    COLUMN *mycol = create_column("Column 1", 2, INT, STRING);
+    x a = {1, "abcd"};
+    x c = {1, "abc"};
     insert_value(mycol, &a);
     insert_value(mycol, NULL);
     insert_value(mycol, &c);
     print_col(mycol, 30);
+    int res;
+    res = compare_val(mycol->data[0], mycol->data[2], mycol->type, mycol->datasize);
+    printf("%d", res);
     return 0;
 }
