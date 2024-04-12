@@ -10,8 +10,15 @@
  * @param d2 Pointer to the second blob of data
  * @param size Size of the blobs
  * @return 1 if d1 > d2 ; 0 if d1 = d2 ; -1 if d1 < d2
-*/
+ */
 int compare_data(void *d1, void *d2, int size);
+
+/**
+ * @brief Returns the size of the type provided
+ * @param type An ENUME_TYPE
+ * @return The size of the type
+ */
+int get_size(ENUM_TYPE type);
 
 int get_size(ENUM_TYPE type)
 {
@@ -106,7 +113,21 @@ void write_data(void *addr, void *data, ENUM_TYPE type)
 
     // TODO: deep copy of the string ?
     case STRING:
-        *((char **)addr) = *((char **)data);
+        char *str = *((char **)data);
+        unsigned int size = 0;
+        while (str[size] != '\0')
+        {
+            size++;
+        }
+        size++;
+        char *target = (char *)malloc(size);
+        printf("%p\n", target);
+        *((char **)addr) = target;
+        for (unsigned int i = 0; i < size; i++)
+        {
+            target[i] = str[i];
+        }
+        // *((char **)addr) = *((char **)data);
         break;
 
     case STRUCTURE:
@@ -162,8 +183,10 @@ int insert_value(COLUMN *col, void *value)
                     }
                 }
             }
-            if(s2 % 8 != 0 && i < col->datasize - 1) {
-                if(get_size(col->type[i + 1]) == 8) {
+            if (s2 % 8 != 0 && i < col->datasize - 1)
+            {
+                if (get_size(col->type[i + 1]) == 8)
+                {
                     // Adds padding for the value to fit in a memory block, and fills it with 0
                     for (int j = 0; j < 4; j++)
                     {
@@ -178,19 +201,38 @@ int insert_value(COLUMN *col, void *value)
     return 1;
 };
 
-// ! Not a complete free, memory leak
 void free_column(COLUMN **col)
 {
-    for (int i = 0; i < (*col)->size; i++)
+    for (unsigned int i = 0; i < (*col)->size; i++)
     {
-        int s = 0;
-        for (int j = 0; j < (*col)->datasize; j++)
-        {
+        if((*col)->data[i] != NULL) {
+            unsigned long int size = 0;
+            for (unsigned int j = 0; j < (*col)->datasize; j++)
+            {
+                if ((*col)->type[j] == STRING)
+                {
+                    free(*(char **)((*col)->data[i] + size));
+                }
+                size += get_size((*col)->type[j]);
+                if ((*col)->type[j] == CHAR && j < (*col)->datasize - 1)
+                {
+                    if ((*col)->type[j + 1] != CHAR)
+                    {
+                        size += 4 - (size % 4);
+                    }
+                }
+                if (size % 8 != 0 && j < (*col)->datasize - 1)
+                {
+                    if (get_size((*col)->type[j + 1]) == 8)
+                    {
+                        size += 4;
+                    }
+                }
+            }
             free((*col)->data[i]);
-            s += get_size((*col)->type[j]);
         }
-        free((*col)->data[i]);
     }
+    free((*col)->data);
     free(*col);
     *col = NULL;
 }
@@ -259,8 +301,9 @@ void convert_struct(char *str, int size, void *data, int typec, ENUM_TYPE *typev
                 bc += 4 - (bc % 4);
             }
         }
-        if(bc % 8 != 0 && k < typec - 1) {
-            if(get_size(typev[k + 1]) == 8)
+        if (bc % 8 != 0 && k < typec - 1)
+        {
+            if (get_size(typev[k + 1]) == 8)
             {
                 bc += 4;
             }
@@ -314,11 +357,11 @@ int compare_val(void *s1, void *s2, ENUM_TYPE *types, int size)
         {
             unsigned long int j = 0;
 
-            char* str1 = *(char **) (s1 + bc);
-            char* str2 = *(char **) (s2 + bc);
-            while(str1[j] != 0 && str2[j] != 0)
+            char *str1 = *(char **)(s1 + bc);
+            char *str2 = *(char **)(s2 + bc);
+            while (str1[j] != 0 && str2[j] != 0)
                 j++;
-            res = compare_data(str1, str2, j+1);
+            res = compare_data(str1, str2, j + 1);
         }
         else
         {
@@ -337,8 +380,9 @@ int compare_val(void *s1, void *s2, ENUM_TYPE *types, int size)
                 bc += 4 - (bc % 4);
             }
         }
-        if(bc % 8 != 0 && i < size - 1) {
-            if(get_size(types[i + 1]) == 8)
+        if (bc % 8 != 0 && i < size - 1)
+        {
+            if (get_size(types[i + 1]) == 8)
             {
                 bc += 4;
             }

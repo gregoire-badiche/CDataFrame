@@ -19,6 +19,7 @@ int main(int argc, char const *argv[])
     print_col(mycol, 30);
     int res;
     res = compare_val(mycol->data[0], mycol->data[2], mycol->type, mycol->datasize);
-    printf("%d", res);
+    printf("%d\n", res);
+    free_column(&mycol);
     return 0;
 }
