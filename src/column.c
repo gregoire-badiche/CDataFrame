@@ -20,6 +20,34 @@ int compare_data(void *d1, void *d2, int size);
  */
 int get_size(ENUM_TYPE type);
 
+/**
+ * @brief Writes the data at the provided address, depending on its type
+ * @param addr The address to write at
+ * @param data The data to be written
+ * @param type The type of the data
+*/
+void write_data(void *addr, void* data, ENUM_TYPE type);
+
+/**
+ * @brief Converts a value into a string
+ * @param str The string to be written
+ * @param size The size of the string
+ * @param type The type of the data
+ * @param data The data to be converted
+ * @return Error code
+*/
+int convert_var(char *str, int size, ENUM_TYPE type, void *data);
+
+/**
+ * @brief Converts a struct into a string
+ * @param str The string to be written
+ * @param size The size of the string
+ * @param data The data to be written
+ * @param typec The number of types composing the struct
+ * @param typev The types composing the struct
+*/
+void convert_struct(char *str, int size, void *data, int typec, ENUM_TYPE *typev);
+
 int get_size(ENUM_TYPE type)
 {
     int s = 0;
@@ -111,7 +139,6 @@ void write_data(void *addr, void *data, ENUM_TYPE type)
         *((double *)addr) = *((double *)data);
         break;
 
-    // TODO: deep copy of the string ?
     case STRING:
         char *str = *((char **)data);
         unsigned int size = 0;
@@ -127,7 +154,6 @@ void write_data(void *addr, void *data, ENUM_TYPE type)
         {
             target[i] = str[i];
         }
-        // *((char **)addr) = *((char **)data);
         break;
 
     case STRUCTURE:
@@ -404,4 +430,50 @@ int compare_data(void *d1, void *d2, int size)
             return 1;
     }
     return 0;
+}
+
+void *value_at(COLUMN *col, int n)
+{
+    if(n < col->size)
+        return NULL;
+    return (void *) col->data[n];
+}
+
+int occurences_of(COLUMN *col, void *val)
+{
+    unsigned int c = 0;
+    for(int i = 0; i < col->size; i++)
+    {
+        if(col->data[i] == NULL || val == NULL) {
+            if(col->data[i] == NULL && val == NULL)
+                c++;
+        }
+        else if(compare_val(val, &col->data[i], col->type, col->datasize) == 0)
+            c++;
+    }
+    return c;
+}
+
+int less_than(COLUMN *col, void *val)
+{
+    unsigned int c = 0;
+    for(int i = 0; i < col->size; i++)
+    {
+        if(col->data[i] != NULL && val != NULL)
+            if(compare_val(val, &col->data[i], col->type, col->datasize) == 1)
+                c++;
+    }
+    return c;
+}
+
+int greater_than(COLUMN *col, void *val)
+{
+    unsigned int c = 0;
+    for(int i = 0; i < col->size; i++)
+    {
+        if(col->data[i] != NULL && val != NULL)
+            if(compare_val(val, &col->data[i], col->type, col->datasize) == -1)
+                c++;
+    }
+    return c;
 }

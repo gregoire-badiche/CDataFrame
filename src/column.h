@@ -75,4 +75,36 @@ void print_col(COLUMN *col, int size);
  */
 int compare_val(void *s1, void *s2, ENUM_TYPE* types, int size);
 
+/**
+ * @brief Return the value present at position n
+ * @param col The pointer to the column
+ * @param n The position of the value
+ * @return A `void` pointer to the value, or NULL if the value doesn't exists
+*/
+void *value_at(COLUMN *col, int n);
+
+/**
+ * @brief Return the number of occurrences of a value
+ * @param col The pointer to the column
+ * @param val The pointer to the value
+ * @return The number of occurrences of a value
+*/
+int occurences_of(COLUMN *col, void *val);
+
+/**
+ * @brief Return the number of values that are greater than one provided
+ * @param col The pointer to the column
+ * @param val The pointer to the value
+ * @return The number of values that are greater
+*/
+int less_than(COLUMN *col, void *val);
+
+/**
+ * @brief Return the number of values that are less than one provided
+ * @param col The pointer to the column
+ * @param val The pointer to the value
+ * @return The number of values that are less
+*/
+int greater_than(COLUMN *col, void *val);
+
 #endif

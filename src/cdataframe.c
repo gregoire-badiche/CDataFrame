@@ -3,18 +3,18 @@
 #include "list.h"
 #include "cdataframe.h"
 
-CDATAFRAME *create_cdataframe(ENUM_TYPE* cdftype, int size) {
+CDATAFRAME *create_cdataframe(ENUM_TYPE* cdftype, int typesize, int size) {
     CDATAFRAME* cdf;
     cdf = (CDATAFRAME *) malloc(sizeof(CDATAFRAME));
     LNODE* prev = (LNODE *) malloc(sizeof(LNODE));
     LNODE* current = (LNODE *) malloc(sizeof(LNODE));
     cdf->head = prev;
     prev->prev = NULL;
-    prev->data = create_column(NULL, cdftype);
+    prev->data = create_column(NULL, typesize, cdftype);
     for(int i = 1; i < size; i++) {
         current->next = NULL;
         current->prev = prev;
-        current->data = create_column(NULL, cdftype);
+        current->data = create_column(NULL, typesize, cdftype);
         prev->next = current;
     }
     cdf->tail = current;
@@ -65,4 +65,11 @@ int get_cdataframe_cols_size(CDATAFRAME *cdf) {
         node = node->next;
     }
     return c;
+}
+
+void display_cdataframe(CDATAFRAME *cdf)
+{
+    LNODE* current = cdf->head;
+    while(current != NULL)
+        print_col(current->data, 30);
 }

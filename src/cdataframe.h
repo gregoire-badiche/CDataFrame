@@ -11,7 +11,7 @@ typedef LIST CDATAFRAME;
  * @param size The size of the list
  * @return A pointer to the dataframe
  */
-CDATAFRAME *create_cdataframe(ENUM_TYPE *cdftype, int size);
+CDATAFRAME *create_cdataframe(ENUM_TYPE *cdftype, int typesize, int size);
 
 /**
  * @brief Column deletion
@@ -33,5 +33,11 @@ int delete_column(CDATAFRAME *cdf, char *col_name);
  * @return Number of columns in the CDataframe
  */
 int get_cdataframe_cols_size(CDATAFRAME *cdf);
+
+/**
+ * @brief Prints the whole dataframe
+ * @param cdf Point to the CDataframe
+ */
+void display_cdataframe(CDATAFRAME *cdf);
 
 #endif
