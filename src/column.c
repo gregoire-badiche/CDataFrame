@@ -87,6 +87,23 @@ int get_size(ENUM_TYPE type)
     return s;
 }
 
+COLUMN *create_column_fa(char *title, int datasize, ENUM_TYPE* datatypes)
+{
+    COLUMN *col = (COLUMN *)malloc(sizeof(COLUMN));
+    if (col != NULL)
+    {
+        col->title = title;
+        col->size = 0;
+        col->max_size = 0;
+        col->max_size = REALLOC_SIZE;
+        col->datasize = datasize;
+        col->type = datatypes;
+        col->data = NULL;
+        col->index = NULL;
+    }
+    return col;
+};
+
 COLUMN *create_column(char *title, int datasize, ...)
 {
     va_list args;
@@ -98,20 +115,8 @@ COLUMN *create_column(char *title, int datasize, ...)
         typev = va_arg(args, ENUM_TYPE);
         type[i] = typev;
     }
-    COLUMN *col = (COLUMN *)malloc(sizeof(COLUMN));
-    if (col != NULL)
-    {
-        col->title = title;
-        col->size = 0;
-        col->max_size = 0;
-        col->max_size = REALLOC_SIZE;
-        col->datasize = datasize;
-        col->type = type;
-        col->data = NULL;
-        col->index = 0;
-    }
-    return col;
-};
+    return create_column_fa(title, datasize, type);
+}
 
 void write_data(void *addr, void *data, ENUM_TYPE type)
 {
@@ -148,7 +153,6 @@ void write_data(void *addr, void *data, ENUM_TYPE type)
         }
         size++;
         char *target = (char *)malloc(size);
-        printf("%p\n", target);
         *((char **)addr) = target;
         for (unsigned int i = 0; i < size; i++)
         {
@@ -201,8 +205,9 @@ int insert_value(COLUMN *col, void *value)
             {
                 if (col->type[i + 1] != CHAR)
                 {
+                    int k = 4 - (s2 % 4);
                     // Adds padding for the char to fit in a memory block, and fills it with 0
-                    for (int j = 0; j < 4 - (s2 % 4); j++)
+                    for (int j = 0; j < k; j++)
                     {
                         write_data(col->data[col->size] + s2, "\0", CHAR);
                         s2++;
@@ -358,12 +363,12 @@ void convert_value(COLUMN *col, unsigned long long int i, char *str, int size)
     convert_struct(str, size, col->data[i], col->datasize, col->type);
 }
 
-void print_col(COLUMN *col, int size)
+void print_col(COLUMN *col, int index, int size)
 {
     printf("%.*s\n", size, col->title);
     char s[size];
     char s2[size];
-    for (int i = 0; i < col->size; i++)
+    for (int i = 0; i < col->size && (i < index || index == -1); i++)
     {
         convert_value(col, i, s, size);
         snprintf(s2, size, "[%d] %s", i, s);
@@ -439,7 +444,7 @@ void *value_at(COLUMN *col, int n)
     return (void *) col->data[n];
 }
 
-int occurences_of(COLUMN *col, void *val)
+int are_occurences_of(COLUMN *col, void *val)
 {
     unsigned int c = 0;
     for(int i = 0; i < col->size; i++)
@@ -454,7 +459,7 @@ int occurences_of(COLUMN *col, void *val)
     return c;
 }
 
-int less_than(COLUMN *col, void *val)
+int are_less_than(COLUMN *col, void *val)
 {
     unsigned int c = 0;
     for(int i = 0; i < col->size; i++)
@@ -466,7 +471,7 @@ int less_than(COLUMN *col, void *val)
     return c;
 }
 
-int greater_than(COLUMN *col, void *val)
+int are_greater_than(COLUMN *col, void *val)
 {
     unsigned int c = 0;
     for(int i = 0; i < col->size; i++)
