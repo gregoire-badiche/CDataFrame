@@ -3,24 +3,22 @@
 
 #include "column.h"
 
-#define ASC 0
-#define DESC 1
+#define ASC 1
+#define DESC -1
 
 /**
- * @brief Quicksorts the data, and keeps track of the original indexes of the data
- * @param size The size of the array
- * @param data NOT MODIFIED, the data to be sorted
- * @param index MODIFIED, the original indexes of the data
+ * @brief Quicksorts the data indexes
+ * @param col The column
+ * @param left
+ * @param right
+ * @param d
  */
-void quicksort(int size, void **data, int *index);
+void quicksort(COLUMN *col, unsigned int left, unsigned int right, int d);
 
 /**
- * @brief Sorts the data, and keeps track of the original indexes of the data
- * @param size The size of the array
- * @param data NOT MODIFIED, the data to be sorted
- * @param index MODIFIED, the original indexes of the data
+ * @brief Sorts the data indexes
  */
-void insertion_sort(int size, void **data, int *index);
+void insertionsort(COLUMN *col, int d);
 
 /**
  * @brief: Sort a column according to a given order

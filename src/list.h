@@ -25,17 +25,17 @@ typedef struct LIST_
 /**
  * création d'un noeud
  */
-LNODE *lst_create_LNODE(void *dat);
+LNODE *lst_create_lnode(void *dat);
 
 /**
  * crée la LISTe et retourne un pointeur sur cette dernière
  */
-LIST *lst_create_LIST();
+LIST *lst_create_list();
 
 /**
  * supprimer la LISTe
  */
-void lst_delete_LIST(LIST *lst);
+void lst_delete_list(LIST *lst);
 
 /**
  * Insère pnew au début de la LISTe lst
@@ -65,7 +65,7 @@ void lst_delete_tail(LIST *lst);
 /**
  * Supprime le LNODE pointé par ptr
  */
-void lst_delete_LNODE(LIST *lst, LNODE *ptr);
+void lst_delete_lnode(LIST *lst, LNODE *ptr);
 
 /**
  * Supprime tous les éléments de la LISTe lst
@@ -91,5 +91,7 @@ LNODE *get_next_node(LIST *lst, LNODE *LNODE);
  * retourne le node precedent
  */
 void *get_previous_elem(LIST *lst, LNODE *LNODE);
+
+LNODE *get_element(LIST *lst, unsigned int index);
 
 #endif

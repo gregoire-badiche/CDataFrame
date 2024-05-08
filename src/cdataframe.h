@@ -15,7 +15,7 @@ CDATAFRAME *create_cdataframe_fa(ENUM_TYPE *cdftype, int typesize, int size);
 
 /**
  * @brief Variatic wrapper for the create_cdataframe_fa function
-*/
+ */
 CDATAFRAME *create_cdataframe(int size, int typesize, ...);
 
 /**
@@ -47,28 +47,38 @@ int get_cdataframe_cols_size(CDATAFRAME *cdf);
  */
 void display_cdataframe(CDATAFRAME *cdf, int index, int strsize);
 
-void add_row();
+void add_row(CDATAFRAME *cdf, void **values);
 
-void delete_row();
+void delete_row(CDATAFRAME *cdf, unsigned int index);
 
-void add_column();
+void add_column_fa(CDATAFRAME *cdf, unsigned int index, char *title, unsigned int typesize, ENUM_TYPE *types);
 
-void delete_column();
+void add_column(CDATAFRAME *cdf, unsigned int index, char *title, unsigned int typesize, ...);
 
-int search();
+void delete_column(CDATAFRAME *cdf, unsigned int index);
 
-void* get_value();
+int value_exists(CDATAFRAME *cdf, void *data);
 
-void display_names();
+void *get_value(CDATAFRAME *cdf, unsigned int row, unsigned int col);
 
-int number_rows();
+void display_names(CDATAFRAME *cdf);
 
-int number_cols();
+int number_rows(CDATAFRAME *cdf);
 
-int occurences_of();
+int number_cols(CDATAFRAME *cdf);
 
-int greater_than();
+int occurences_of(CDATAFRAME *cdf, void *data);
 
-int less_than();
+int greater_than(CDATAFRAME *cdf, void *data);
+
+int less_than(CDATAFRAME *cdf, void *data);
+
+/**
+ * @brief Create a CDataframe from csvfile
+ * @param CSV filename
+ * @param Array of types
+ * @param Size of array
+ */
+CDATAFRAME *load_from_csv(char *file_name, ENUM_TYPE *dftype, int size);
 
 #endif

@@ -4,7 +4,7 @@
 
 #include "list.h"
 
-LNODE *lst_create_LNODE(void *dat)
+LNODE *lst_create_lnode(void *dat)
 {
     LNODE *ptmp = (LNODE *)malloc(sizeof(LNODE));
     ptmp->data = dat;
@@ -13,7 +13,7 @@ LNODE *lst_create_LNODE(void *dat)
     return ptmp;
 }
 
-LIST *lst_create_LIST()
+LIST *lst_create_list()
 {
     LIST *lst = (LIST *)malloc(sizeof(LIST));
     lst->head = NULL;
@@ -21,7 +21,7 @@ LIST *lst_create_LIST()
     return lst;
 }
 
-void lst_delete_LIST(LIST *lst)
+void lst_delete_list(LIST *lst)
 {
     lst_erase(lst);
     free(lst);
@@ -107,7 +107,7 @@ void lst_delete_tail(LIST *lst)
     lst->tail->next = NULL;
 }
 
-void lst_delete_LNODE(LIST *lst, LNODE *ptr)
+void lst_delete_lnode(LIST *lst, LNODE *ptr)
 {
     if (ptr == NULL)
         return;
@@ -166,4 +166,16 @@ void *get_previous_elem(LIST *lst, LNODE *LNODE)
     if (LNODE == NULL)
         return NULL;
     return LNODE->prev;
+}
+
+LNODE *get_element(LIST *lst, unsigned int index)
+{
+    int counter = 0;
+    LNODE *n = lst->head;
+    while (n != NULL && counter != index)
+    {
+        n = n->next;
+        counter++;
+    }
+    return n;
 }

@@ -61,6 +61,8 @@ COLUMN *create_column(char *title, int datasize, ...);
  */
 int insert_value(COLUMN *col, void *value);
 
+void delete_value(COLUMN *col, unsigned int index);
+
 /**
  * @brief Free the space allocated by a column
  * @param col Pointer to the column

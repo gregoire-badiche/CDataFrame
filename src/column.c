@@ -232,6 +232,12 @@ int insert_value(COLUMN *col, void *value)
     return 1;
 };
 
+void delete_value(COLUMN *col, unsigned int index)
+{
+    free(col->data);
+    col->data = NULL;
+}
+
 void free_column(COLUMN **col)
 {
     for (unsigned int i = 0; i < (*col)->size; i++)
@@ -296,7 +302,7 @@ int convert_var(char *str, int size, ENUM_TYPE type, void *data)
             break;
 
         case DOUBLE:
-            i = snprintf(str, size, "%d", *((double *)data));
+            i = snprintf(str, size, "%lf", *((double *)data));
             break;
 
         case STRING:
