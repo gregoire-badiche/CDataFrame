@@ -85,6 +85,8 @@ void convert_value(COLUMN *col, unsigned long long int i, char *str, int size);
  */
 void print_col(COLUMN *col, int index, int size);
 
+void print_col_by_index(COLUMN *col, int index, int size);
+
 /**
  * @brief Compare two values
  * @param s1 Pointer to the first value

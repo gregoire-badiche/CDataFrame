@@ -175,6 +175,7 @@ int insert_value(COLUMN *col, void *value)
     if (col->data == NULL)
     {
         col->data = (void **)malloc(REALLOC_SIZE);
+        col->index = (long long unsigned int *)malloc(REALLOC_SIZE);
         col->size = 0;
         col->max_size = REALLOC_SIZE;
     }
@@ -183,6 +184,7 @@ int insert_value(COLUMN *col, void *value)
     {
         col->max_size += REALLOC_SIZE;
         col->data = (void **)realloc(col->data, col->max_size);
+        col->index = (long long unsigned int *)realloc(col->index, col->max_size);
     }
     if (value == NULL)
     {
@@ -228,6 +230,7 @@ int insert_value(COLUMN *col, void *value)
             }
         }
     }
+    col->index[col->size] = col->size;
     col->size++;
     return 1;
 };
@@ -445,7 +448,7 @@ int compare_data(void *d1, void *d2, int size)
 
 void *value_at(COLUMN *col, int n)
 {
-    if(n < col->size)
+    if(n > col->size)
         return NULL;
     return (void *) col->data[n];
 }
@@ -487,4 +490,18 @@ int are_greater_than(COLUMN *col, void *val)
                 c++;
     }
     return c;
+}
+
+void print_col_by_index(COLUMN *col, int index, int size)
+{
+    printf("%.*s\n", size, col->title);
+    char s[size];
+    char s2[size];
+    for (int i = 0; i < col->size && (i < index || index == -1); i++)
+    {
+        int it = col->index[i];
+        convert_value(col, it, s, size);
+        snprintf(s2, size, "[%d] %s", it, s);
+        printf("%s\n", s2);
+    }
 }

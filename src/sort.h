@@ -27,10 +27,4 @@ void insertionsort(COLUMN *col, int d);
  */
 void sort(COLUMN *col, int sort_dir);
 
-/**
- * @brief: Display the content of a sorted column
- * @param: Pointer to a column
- */
-void print_col_by_index(COLUMN *col);
-
 #endif

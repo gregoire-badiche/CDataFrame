@@ -1,30 +1,32 @@
 #include <stdio.h>
 #include "column.h"
 #include "cdataframe.h"
+#include "sort.h"
 #include "csv.h"
 
 typedef struct _x
 {
     int b;
-    char *a;
     char c;
-    float d;
-    char* e;
 } x;
 
 int main(int argc, char const *argv[])
 {
-    x a = {1, "Hello", 'a', 3.87, "enorme"};
-    x c = {128, "World!", 'b', 64.42902, "pouleto dodu"};
-
-    // print_col(mycol, -1, 30);
-    
-    CDATAFRAME* cdf = create_cdataframe(1, 5, INT, STRING, CHAR, FLOAT, STRING);
-    insert_value(cdf->head->data, &a);
-    insert_value(cdf->head->data, NULL);
-    insert_value(cdf->head->data, &c);
-    display_cdataframe(cdf, -1, 30);
-
-    // char ***p = load_csv("/home/gregoire/Development/CDataFrame/data.csv");
+    COLUMN *mycol = create_column("sorted column", 1, INT);
+    int a = 52;
+    int b = 44;
+    int c = 15;
+    int d = 18;
+    insert_value(mycol, &a);
+    insert_value(mycol, &b);
+    insert_value(mycol, &c);
+    insert_value(mycol, &d);
+    ENUM_TYPE p = INT;
+    printf("%d %d %d\n", *(int *)mycol->data[0], *(int *)mycol->data[1], compare_val(mycol->data[0], mycol->data[1], &p, 1));
+    printf("Column content before sorting : \n");
+    print_col(mycol, -1, 30);
+    sort(mycol, ASC);
+    printf("Column content after sorting : \n");
+    print_col_by_index(mycol, -1, 30);
     return 0;
 }
