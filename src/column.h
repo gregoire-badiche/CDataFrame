@@ -42,7 +42,7 @@ typedef struct column
  * @param datatypes all the `ENUM_TYPE` types
  * @return Pointer to the created column
  */
-COLUMN *create_column_fa(char *title, int datasize, ENUM_TYPE* datatypes);
+COLUMN *create_column_fa(char *title, int datasize, ENUM_TYPE *datatypes);
 
 /**
  * @brief Create a new column
@@ -128,5 +128,32 @@ int are_less_than(COLUMN *col, void *val);
  * @return The number of values that are less
  */
 int are_greater_than(COLUMN *col, void *val);
+
+/**
+ * @brief Remove the index of a column
+ * @param Pointer to the column
+ */
+void erase_index(COLUMN *col);
+
+/**
+ * @brief Check if an index is correct
+ * @param Pointer to the column
+ * @return 0: index not existing, -1: the index exists but invalid, 1: the index is correct
+ */
+int check_index(COLUMN *col);
+
+/**
+ * @brief Update the index
+ * @param Pointer to the column
+ */
+void update_index(COLUMN *col);
+
+/**
+ * @brief Check if a value exists in a column
+ * @param Pointer to the column
+ * @param Pointer to the value to search for
+ * @return -1: column not sorted, 0: value not found, 1: value found
+ */
+int search_value_in_column(COLUMN *col, void *val);
 
 #endif

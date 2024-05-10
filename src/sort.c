@@ -66,7 +66,7 @@ void insertionsort(COLUMN *col, int d)
 
 void sort(COLUMN* col, int sort_dir)
 {
-    if(col->valid_index == 0)
+    if(col->valid_index == -1)
     {
         quicksort(col, 0, col->size - 1, sort_dir);
     }
@@ -74,5 +74,6 @@ void sort(COLUMN* col, int sort_dir)
     {
         insertionsort(col, sort_dir);
     }
-    col->valid_index = 1;
+    col->valid_index = IS_SORTED;
+    col->sorting_dir = sort_dir;
 }

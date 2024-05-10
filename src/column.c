@@ -3,6 +3,7 @@
 #include <stdarg.h>
 
 #include "column.h"
+#include "sort.h"
 
 /**
  * @brief Compares to blobs of data bytes by bytes
@@ -100,6 +101,8 @@ COLUMN *create_column_fa(char *title, int datasize, ENUM_TYPE* datatypes)
         col->type = datatypes;
         col->data = NULL;
         col->index = NULL;
+        col->valid_index = NOT_SORTED;
+        col->sorting_dir = ASC;
     }
     return col;
 };
@@ -184,7 +187,8 @@ int insert_value(COLUMN *col, void *value)
     {
         col->max_size += REALLOC_SIZE;
         col->data = (void **)realloc(col->data, col->max_size);
-        col->index = (long long unsigned int *)realloc(col->index, col->max_size);
+        if(col->valid_index != INDEX_DELETED)
+            col->index = (long long unsigned int *)realloc(col->index, col->max_size);
     }
     if (value == NULL)
     {
@@ -230,7 +234,15 @@ int insert_value(COLUMN *col, void *value)
             }
         }
     }
-    col->index[col->size] = col->size;
+    if(col->valid_index != INDEX_DELETED)
+    {
+        col->index[col->size] = col->size;
+        if(check_index(col))
+        {
+            col->valid_index = WAS_SORTED;
+            update_index(col);
+        }
+    }
     col->size++;
     return 1;
 };
@@ -387,6 +399,10 @@ void print_col(COLUMN *col, int index, int size)
 
 int compare_val(void *s1, void *s2, ENUM_TYPE *types, int size)
 {
+    if(s1 == NULL)
+    {
+        return 1;
+    }
     unsigned long int s = 0;
     unsigned long int bc = 0;
     char res;
@@ -504,4 +520,51 @@ void print_col_by_index(COLUMN *col, int index, int size)
         snprintf(s2, size, "[%d] %s", it, s);
         printf("%s\n", s2);
     }
+}
+
+void erase_index(COLUMN *col)
+{
+    free(col->index);
+    col->index = NULL;
+    col->valid_index = INDEX_DELETED;
+}
+
+int check_index(COLUMN *col)
+{
+    return !(col->valid_index == INDEX_DELETED || col->valid_index == NOT_SORTED);
+}
+
+void update_index(COLUMN *col)
+{
+    sort(col, col->sorting_dir);
+}
+
+int search_value_in_column(COLUMN *col, void *val)
+{
+    if(col->valid_index != IS_SORTED)
+        return -1;
+    unsigned int hi = col->size;
+    unsigned int lo = 0;
+    while (hi != lo)
+    {
+        unsigned int pi = (hi - lo) / 2 + lo;
+        if(pi == hi || pi == lo)
+        {
+            return 0;
+        }
+        int c = compare_val(value_at(col, pi), val, col->type, col->datasize);
+        if(c == -1)
+        {
+            hi = pi;
+        }
+        else if(c == 1)
+        {
+            lo = pi;
+        }
+        else
+        {
+            return 1;
+        }
+    }
+    return 0;
 }

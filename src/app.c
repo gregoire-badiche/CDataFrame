@@ -12,20 +12,18 @@ typedef struct _x
 
 int main(int argc, char const *argv[])
 {
-    COLUMN *mycol = create_column("sorted column", 1, INT);
-    int a = 52;
-    int b = 44;
-    int c = 15;
-    int d = 18;
+    COLUMN *mycol = create_column("String column", 1, STRING);
+    char *a = "Lima";
+    char *b = "Bravo";
+    char *c = "Zulu";
+    char *d = "Tango";
     insert_value(mycol, &a);
     insert_value(mycol, &b);
     insert_value(mycol, &c);
     insert_value(mycol, &d);
-    ENUM_TYPE p = INT;
-    printf("%d %d %d\n", *(int *)mycol->data[0], *(int *)mycol->data[1], compare_val(mycol->data[0], mycol->data[1], &p, 1));
     printf("Column content before sorting : \n");
     print_col(mycol, -1, 30);
-    sort(mycol, ASC);
+    sort(mycol, DESC);
     printf("Column content after sorting : \n");
     print_col_by_index(mycol, -1, 30);
     return 0;

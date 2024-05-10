@@ -6,6 +6,11 @@
 #define ASC 1
 #define DESC -1
 
+#define INDEX_DELETED 0
+#define NOT_SORTED 1
+#define WAS_SORTED 2
+#define IS_SORTED 3
+
 /**
  * @brief Quicksorts the data indexes
  * @param col The column
