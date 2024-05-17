@@ -17,14 +17,6 @@ CDATAFRAME *create_cdataframe_fa(ENUM_TYPE *cdftype, int typesize, int size)
     prev->prev = NULL;
     prev->data = create_column_fa(NULL, typesize, cdftype);
     prev->next = NULL;
-    // for (int i = 1; i < size; i++)
-    // {
-    //     current->next = NULL;
-    //     current->prev = prev;
-    //     current->data = create_column(NULL, typesize, cdftype);
-    //     prev->next = current;
-    // }
-    // cdf->tail = current;
     return cdf;
 }
 
@@ -261,7 +253,6 @@ CDATAFRAME *load_from_csv(char *file_name, ENUM_TYPE *dftypes, int size)
                 int _ = k < s - 1 ? typecounter + 1 : typecounter + 2;
                 update_size(&size, typecounter, dftypes, _);
             }
-            // typecounter += s;
             ENUM_TYPE *t = (ENUM_TYPE *)malloc(sizeof(ENUM_TYPE) * s);
             void *d = malloc(size);
             unsigned long int bc = 0;
@@ -270,40 +261,34 @@ CDATAFRAME *load_from_csv(char *file_name, ENUM_TYPE *dftypes, int size)
                 char *data = sdata[k];
                 ENUM_TYPE type = dftypes[j * s + k];
                 t[k] = type;
-                // void *ptr;
                 switch (type)
                 {
                 case UINT:
                 {
-                    // ptr = malloc(sizeof(unsigned int));
                     sscanf(data, "%u", d + bc);
                 }
                 break;
 
                 case INT:
                 {
-                    // ptr = malloc(sizeof(int));
                     sscanf(data, "%d", d + bc);
                 }
                 break;
 
                 case CHAR:
                 {
-                    // ptr = malloc(sizeof(char));
                     sscanf(data, "%c", d + bc);
                 }
                 break;
 
                 case FLOAT:
                 {
-                    // ptr = malloc(sizeof(float));
                     sscanf(data, "%f", d + bc);
                 }
                 break;
 
                 case DOUBLE:
                 {
-                    // ptr = malloc(sizeof(double));
                     sscanf(data, "%lf", d + bc);
                 }
                 break;
@@ -322,7 +307,6 @@ CDATAFRAME *load_from_csv(char *file_name, ENUM_TYPE *dftypes, int size)
                     {
                         target[l] = data[l];
                     }
-                    printf("Pointer1 %p with bc = %d and op = %p\n", target, bc, d + bc);
                 }
                 break;
 
@@ -330,8 +314,6 @@ CDATAFRAME *load_from_csv(char *file_name, ENUM_TYPE *dftypes, int size)
                     break;
                 }
                 update_size(&bc, k, dftypes + j * s, s);
-                // write_data((d + k), ptr, type);
-                // free(ptr);
             }
             free_split(&sdata);
             if (i == 0)
@@ -360,6 +342,6 @@ CDATAFRAME *load_from_csv(char *file_name, ENUM_TYPE *dftypes, int size)
         }
     }
     free(widths);
-    // free_load_csv(&csv, height);
+    free_load_csv(&csv, height);
     return cdf;
 }

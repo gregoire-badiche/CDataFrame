@@ -109,8 +109,8 @@ void free_load_csv(char ****pos, int height)
 {
     for (int i = 0; i < height; i++)
     {
-        free(*pos[i][0]);
-        free(*pos[i]);
+        free((*pos)[i][0]);
+        free((*pos)[i]);
     }
     free(*pos);
     *pos = NULL;

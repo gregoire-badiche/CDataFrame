@@ -138,7 +138,6 @@ void write_data(void *addr, void *data, ENUM_TYPE type)
 
     case STRING:
         char *str = *((char **)data);
-        printf("Pointer2 %p with op = %p\n", str, data);
         unsigned int size = 1;
         while (str[size] != '\0')
         {
@@ -251,21 +250,6 @@ void free_column(COLUMN **col)
                 {
                     free(*(char **)((*col)->data[i] + size));
                 }
-                // size += get_size((*col)->type[j]);
-                // if ((*col)->type[j] == CHAR && j < (*col)->datasize - 1)
-                // {
-                //     if ((*col)->type[j + 1] != CHAR)
-                //     {
-                //         size += 4 - (size % 4);
-                //     }
-                // }
-                // if (size % 8 != 0 && j < (*col)->datasize - 1)
-                // {
-                //     if (get_size((*col)->type[j + 1]) == 8)
-                //     {
-                //         size += 4;
-                //     }
-                // }
                 update_size(&size, j, (*col)->type, (*col)->datasize);
             }
             free((*col)->data[i]);
@@ -331,22 +315,6 @@ void convert_struct(char *str, int size, void *data, int typec, ENUM_TYPE *typev
         char *s = (char *)malloc(sizeof(char) * size);
         int i;
         i = convert_var(s, size, argv, (data + bc));
-        // bc += get_size(argv);
-        // if (argv == CHAR && k < typec - 1)
-        // {
-        //     if (typev[k + 1] != CHAR)
-        //     {
-        //         // Takes padding into account
-        //         bc += 4 - (bc % 4);
-        //     }
-        // }
-        // if (bc % 8 != 0 && k < typec - 1)
-        // {
-        //     if (get_size(typev[k + 1]) == 8)
-        //     {
-        //         bc += 4;
-        //     }
-        // }
         update_size(&bc, k, typev, typec);
         int j;
         for (j = 0; (j < i) && (wc + j < size); j++)
