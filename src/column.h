@@ -5,14 +5,12 @@
 
 typedef enum
 {
-    NULLVAL = 1,
     UINT,
     INT,
     CHAR,
     FLOAT,
     DOUBLE,
-    STRING,
-    STRUCTURE
+    STRING
 } ENUM_TYPE;
 
 typedef struct column
@@ -34,6 +32,13 @@ typedef struct column
     // 1 : DESC
     int sorting_dir;
 } COLUMN;
+
+/**
+ * @brief Returns the size of the type provided
+ * @param type An ENUME_TYPE
+ * @return The size of the type
+ */
+int get_size(ENUM_TYPE type);
 
 /**
  * @brief `create_column_from_array` : Create a new column described with an array of types
@@ -155,5 +160,16 @@ void update_index(COLUMN *col);
  * @return -1: column not sorted, 0: value not found, 1: value found
  */
 int search_value_in_column(COLUMN *col, void *val);
+
+/**
+ * @brief Updates the Bytes Counter and the size
+ * @param bc Bytes counter
+ * @param index The index of the current type
+ * @param types The array containing the types
+ * @param size The size of the `types` array
+*/
+void update_size(unsigned long int *bc, int index, ENUM_TYPE* types, int size);
+
+void write_data(void *addr, void *data, ENUM_TYPE type);
 
 #endif

@@ -59,7 +59,7 @@ char ***load_csv(char *filename, int **widths, int *height)
     int const lines = linecount(f);
     fseek(f, 0, SEEK_SET);
     char ***data = (char ***)malloc(lines * sizeof(char **));
-    int sccounts[lines];
+    int *sccounts = (int *)malloc(sizeof(int) * lines);
     int ccounts[lines];
     for (int i = 0; i < lines; i++)
     {
@@ -77,7 +77,6 @@ char ***load_csv(char *filename, int **widths, int *height)
         char *str = (char *)malloc(sizeof(char) * (chars + 1));
         fgets(str, chars + 1, f);
         fgetc(f);
-        printf(":%s %d\n", str, ftell(f));
         int const sc = sccounts[i];
         data[i] = (char **)malloc(sizeof(char *) * sc);
         char *ptr = str;
@@ -120,29 +119,31 @@ void free_load_csv(char ****pos, int height)
 char **split(char *str, char delimiter, int *sections)
 {
     char **res;
-    *sections = 0;
+    *sections = 1;
     int i = 0;
     while(str[i] != '\0')
     {
         if(str[i] == delimiter)
-            *sections++;
+            (*sections)++;
         i++;
     }
     res = (char **)malloc(sizeof(char *) * *sections);
     i = 0;
-    int c = 0;
+    int c = 1;
     int p = 0;
+    res[0] = str;
     while (str[i] != '\0')
     {
         if(str[i] == delimiter)
         {
             if(i != 0)
-                if(str[i - 1 == '\\'])
+                if(str[i - 1] == '\\')
                     continue;
             str[i] = '\0';
-            res[c] = str + p;
-            p = i + 1;
+            res[c] = &str[i] + 1;
+            c++;
         }
+        i++;
     }
     return res;
 }

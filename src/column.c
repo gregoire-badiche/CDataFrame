@@ -15,13 +15,6 @@
 int compare_data(void *d1, void *d2, int size);
 
 /**
- * @brief Returns the size of the type provided
- * @param type An ENUME_TYPE
- * @return The size of the type
- */
-int get_size(ENUM_TYPE type);
-
-/**
  * @brief Writes the data at the provided address, depending on its type
  * @param addr The address to write at
  * @param data The data to be written
@@ -76,10 +69,6 @@ int get_size(ENUM_TYPE type)
 
     case STRING:
         s = sizeof(char *);
-        break;
-
-    case STRUCTURE:
-        s = sizeof(void *);
         break;
 
     default:
@@ -149,7 +138,8 @@ void write_data(void *addr, void *data, ENUM_TYPE type)
 
     case STRING:
         char *str = *((char **)data);
-        unsigned int size = 0;
+        printf("Pointer2 %p with op = %p\n", str, data);
+        unsigned int size = 1;
         while (str[size] != '\0')
         {
             size++;
@@ -161,10 +151,6 @@ void write_data(void *addr, void *data, ENUM_TYPE type)
         {
             target[i] = str[i];
         }
-        break;
-
-    case STRUCTURE:
-        *((void **)addr) = *((void **)data);
         break;
 
     default:
@@ -265,21 +251,22 @@ void free_column(COLUMN **col)
                 {
                     free(*(char **)((*col)->data[i] + size));
                 }
-                size += get_size((*col)->type[j]);
-                if ((*col)->type[j] == CHAR && j < (*col)->datasize - 1)
-                {
-                    if ((*col)->type[j + 1] != CHAR)
-                    {
-                        size += 4 - (size % 4);
-                    }
-                }
-                if (size % 8 != 0 && j < (*col)->datasize - 1)
-                {
-                    if (get_size((*col)->type[j + 1]) == 8)
-                    {
-                        size += 4;
-                    }
-                }
+                // size += get_size((*col)->type[j]);
+                // if ((*col)->type[j] == CHAR && j < (*col)->datasize - 1)
+                // {
+                //     if ((*col)->type[j + 1] != CHAR)
+                //     {
+                //         size += 4 - (size % 4);
+                //     }
+                // }
+                // if (size % 8 != 0 && j < (*col)->datasize - 1)
+                // {
+                //     if (get_size((*col)->type[j + 1]) == 8)
+                //     {
+                //         size += 4;
+                //     }
+                // }
+                update_size(&size, j, (*col)->type, (*col)->datasize);
             }
             free((*col)->data[i]);
         }
@@ -333,7 +320,7 @@ int convert_var(char *str, int size, ENUM_TYPE type, void *data)
 void convert_struct(char *str, int size, void *data, int typec, ENUM_TYPE *typev)
 {
     ENUM_TYPE argv;
-    int bc = 0; // Byte counter
+    unsigned long int bc = 0; // Byte counter
     int wc = 0; // Word counter (for char)
     // If the data is NULL we want to only print NULL once, and not overflow with pointers pointing to nothing
     if (data == NULL)
@@ -344,22 +331,23 @@ void convert_struct(char *str, int size, void *data, int typec, ENUM_TYPE *typev
         char *s = (char *)malloc(sizeof(char) * size);
         int i;
         i = convert_var(s, size, argv, (data + bc));
-        bc += get_size(argv);
-        if (argv == CHAR && k < typec - 1)
-        {
-            if (typev[k + 1] != CHAR)
-            {
-                // Takes padding into account
-                bc += 4 - (bc % 4);
-            }
-        }
-        if (bc % 8 != 0 && k < typec - 1)
-        {
-            if (get_size(typev[k + 1]) == 8)
-            {
-                bc += 4;
-            }
-        }
+        // bc += get_size(argv);
+        // if (argv == CHAR && k < typec - 1)
+        // {
+        //     if (typev[k + 1] != CHAR)
+        //     {
+        //         // Takes padding into account
+        //         bc += 4 - (bc % 4);
+        //     }
+        // }
+        // if (bc % 8 != 0 && k < typec - 1)
+        // {
+        //     if (get_size(typev[k + 1]) == 8)
+        //     {
+        //         bc += 4;
+        //     }
+        // }
+        update_size(&bc, k, typev, typec);
         int j;
         for (j = 0; (j < i) && (wc + j < size); j++)
         {
@@ -427,22 +415,7 @@ int compare_val(void *s1, void *s2, ENUM_TYPE *types, int size)
         {
             return res;
         }
-        bc += s;
-        // Adds padding for CHAR
-        if (i < size - 1 && types[i] == CHAR)
-        {
-            if (types[i + 1] != CHAR)
-            {
-                bc += 4 - (bc % 4);
-            }
-        }
-        if (bc % 8 != 0 && i < size - 1)
-        {
-            if (get_size(types[i + 1]) == 8)
-            {
-                bc += 4;
-            }
-        }
+        update_size(&bc, i, types, size);
     }
     return 0;
 }
@@ -567,4 +540,25 @@ int search_value_in_column(COLUMN *col, void *val)
         }
     }
     return 0;
+}
+
+void update_size(unsigned long int *bc, int index, ENUM_TYPE* types, int size)
+{
+    *bc += get_size(types[index]);
+    // Adds padding for CHAR
+    if (index < size - 1 && types[index] == CHAR)
+    {
+        if (types[index + 1] != CHAR)
+        {
+            *bc += 4 - (*bc % 4);
+        }
+    }
+    // Adds padding to fit in 8 block
+    if (*bc % 8 != 0 && index < size - 1)
+    {
+        if (get_size(types[index + 1]) == 8)
+        {
+            *bc += 4;
+        }
+    }
 }
