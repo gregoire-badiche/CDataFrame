@@ -232,14 +232,23 @@ int less_than(CDATAFRAME *cdf, void *data)
     return c;
 }
 
-CDATAFRAME *load_from_csv(char *file_name, ENUM_TYPE *dftypes, int size)
+CDATAFRAME *load_from_csv_fa(char *file_name, ENUM_TYPE *dftypes, int size)
 {
+    int stringscounter = 0;
+    for(int i = 0; i < size; i++)
+        if(dftypes[i] == STRING)
+            stringscounter++;
+
     int *widths = NULL;
     int height;
     char ***csv = load_csv(file_name, &widths, &height);
+    stringscounter *= height;
+    char **stringspointers = (char **)malloc(sizeof(char *) * stringscounter);
+    stringscounter = 0;
     CDATAFRAME *cdf = create_cdataframe(1, 1, INT);
     for (int i = 0; i < height; i++)
     {
+        unsigned int tc = 0;
         for (int j = 0; j < widths[i]; j++)
         {
             unsigned int typecounter = 0;
@@ -259,7 +268,7 @@ CDATAFRAME *load_from_csv(char *file_name, ENUM_TYPE *dftypes, int size)
             for (int k = 0; k < s; k++)
             {
                 char *data = sdata[k];
-                ENUM_TYPE type = dftypes[j * s + k];
+                ENUM_TYPE type = dftypes[tc];
                 t[k] = type;
                 switch (type)
                 {
@@ -307,6 +316,8 @@ CDATAFRAME *load_from_csv(char *file_name, ENUM_TYPE *dftypes, int size)
                     {
                         target[l] = data[l];
                     }
+                    stringspointers[stringscounter] = target;
+                    stringscounter++;
                 }
                 break;
 
@@ -314,6 +325,7 @@ CDATAFRAME *load_from_csv(char *file_name, ENUM_TYPE *dftypes, int size)
                     break;
                 }
                 update_size(&bc, k, dftypes + j * s, s);
+                tc++;
             }
             free_split(&sdata);
             if (i == 0)
@@ -343,7 +355,27 @@ CDATAFRAME *load_from_csv(char *file_name, ENUM_TYPE *dftypes, int size)
     }
     free(widths);
     free_load_csv(&csv, height);
+    for(int i = 0; i < stringscounter; i++)
+    {
+        char *k = stringspointers[i];
+        free(stringspointers[i]);
+    }
+    free(stringspointers);
     return cdf;
+}
+
+CDATAFRAME *load_from_csv(char *file_name, int size, ...)
+{
+    va_list args;
+    va_start(args, size);
+    ENUM_TYPE *type = (ENUM_TYPE *)malloc(sizeof(ENUM_TYPE) * size);
+    ENUM_TYPE typev;
+    for (int i = 0; i < size; i++)
+    {
+        typev = va_arg(args, ENUM_TYPE);
+        type[i] = typev;
+    }
+    return load_from_csv_fa(file_name, type, size);
 }
 
 char *data_to_csv(FILE *f, void *data, ENUM_TYPE *types, int size)

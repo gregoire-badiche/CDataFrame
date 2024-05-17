@@ -88,7 +88,12 @@ int less_than(CDATAFRAME *cdf, void *data);
  * @param Array of types
  * @param Size of array
  */
-CDATAFRAME *load_from_csv(char *file_name, ENUM_TYPE *dftype, int size);
+CDATAFRAME *load_from_csv_fa(char *file_name, ENUM_TYPE *dftype, int size);
+
+/**
+ * @brief Variatic wrapper for `load_from_csv_fa`
+*/
+CDATAFRAME *load_from_csv(char *file_name, int size, ...);
 
 /**
  * @brief Export into a csvfile
