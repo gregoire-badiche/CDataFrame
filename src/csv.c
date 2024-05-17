@@ -102,6 +102,7 @@ char ***load_csv(char *filename, int **widths, int *height)
         sccounts[i]++;
     *widths = sccounts;
     *height = lines;
+    fclose(f);
     return data;
 }
 

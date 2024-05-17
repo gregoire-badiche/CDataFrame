@@ -15,5 +15,6 @@ int main(int argc, char const *argv[])
     ENUM_TYPE types[5] = {CHAR, STRING, INT, FLOAT};
     CDATAFRAME *cdf = load_from_csv("/home/gregoire/Development/CDataFrame/data.csv", types, 5);
     display_cdataframe(cdf, -1, 30);
+    save_into_csv(cdf, "/home/gregoire/Development/CDataFrame/data2.csv");
     return 0;
 }

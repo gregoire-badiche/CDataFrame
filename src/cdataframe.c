@@ -345,3 +345,66 @@ CDATAFRAME *load_from_csv(char *file_name, ENUM_TYPE *dftypes, int size)
     free_load_csv(&csv, height);
     return cdf;
 }
+
+char *data_to_csv(FILE *f, void *data, ENUM_TYPE *types, int size)
+{
+    unsigned long int bc = 0;
+    for (int i = 0; i < size; i++)
+    {
+        switch (types[i])
+        {
+        case UINT:
+            fprintf(f, "%u", *(unsigned int *)(data + bc));
+            break;
+
+        case INT:
+            fprintf(f, "%i", *(int *)(data + bc));
+            break;
+
+        case CHAR:
+            fprintf(f, "%c", *(char *)(data + bc));
+            break;
+
+        case FLOAT:
+            fprintf(f, "%f", *(float *)(data + bc));
+            break;
+
+        case DOUBLE:
+            fprintf(f, "%lf", *(double *)(data + bc));
+            break;
+
+        case STRING:
+            fprintf(f, "%s", *(char **)(data + bc));
+            break;
+
+        default:
+            break;
+        }
+        if (i < size - 1)
+        {
+            fprintf(f, ",");
+        }
+        update_size(&bc, i, types, size);
+    }
+}
+
+void save_into_csv(CDATAFRAME *cdf, char *file_name)
+{
+    FILE *f = fopen(file_name, "w+");
+    int width = number_cols(cdf);
+    int height = number_rows(cdf);
+    for (int j = 0; j < height; j++)
+    {
+        for (int i = 0; i < width; i++)
+        {
+            LNODE *n = get_element(cdf, i);
+            COLUMN *col = n->data;
+            void *data = get_value(cdf, j, i);
+            data_to_csv(f, data, col->type, col->datasize);
+            if (i != width - 1)
+                fprintf(f, ";");
+            else if(j != height - 1)
+                fprintf(f, "\n");
+        }
+    }
+}

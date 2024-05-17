@@ -51,7 +51,7 @@ void display_cdataframe(CDATAFRAME *cdf, int index, int strsize);
  * @brief Add a rown to a dataframe
  * @param cdf A pointer to the CDataFrame
  * @param values An array of pointers to values
-*/
+ */
 void add_row(CDATAFRAME *cdf, void **values);
 
 void delete_row(CDATAFRAME *cdf, unsigned int index);
@@ -65,7 +65,7 @@ void delete_column(CDATAFRAME *cdf, unsigned int index);
 /**
  * @brief
  * @return
-*/
+ */
 int value_exists(CDATAFRAME *cdf, void *data);
 
 void *get_value(CDATAFRAME *cdf, unsigned int row, unsigned int col);
@@ -89,5 +89,12 @@ int less_than(CDATAFRAME *cdf, void *data);
  * @param Size of array
  */
 CDATAFRAME *load_from_csv(char *file_name, ENUM_TYPE *dftype, int size);
+
+/**
+ * @brief Export into a csvfile
+ * @param Pointer to the CDataframe
+ * @param csv filename where export file, if the file exists, it will be overwritten
+ */
+void save_into_csv(CDATAFRAME *cdf, char *file_name);
 
 #endif
