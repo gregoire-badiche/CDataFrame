@@ -48,6 +48,14 @@ int get_cdataframe_cols_size(CDATAFRAME *cdf);
 void display_cdataframe(CDATAFRAME *cdf, int index, int strsize);
 
 /**
+ * @brief Prints the whole dataframe
+ * @param cdf Point to the CDataframe
+ * @param index The number of rows to be printed. If -1 then all the rows are printed
+ * @param strsize The max size of the string to be printed
+ */
+void display_cdataframe_by_index(CDATAFRAME *cdf, long long unsigned int *indexes, int index, int strsize);
+
+/**
  * @brief Add a rown to a dataframe
  * @param cdf A pointer to the CDataFrame
  * @param values An array of pointers to values

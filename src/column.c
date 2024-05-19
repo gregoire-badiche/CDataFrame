@@ -12,15 +12,15 @@
  * @param size Size of the blobs
  * @return 1 if d1 > d2 ; 0 if d1 = d2 ; -1 if d1 < d2
  */
-int compare_data(void *d1, void *d2, int size);
+int compare_data(void *d1, void *d2, ENUM_TYPE type);
 
 /**
  * @brief Writes the data at the provided address, depending on its type
  * @param addr The address to write at
  * @param data The data to be written
  * @param type The type of the data
-*/
-void write_data(void *addr, void* data, ENUM_TYPE type);
+ */
+void write_data(void *addr, void *data, ENUM_TYPE type);
 
 /**
  * @brief Converts a value into a string
@@ -29,7 +29,7 @@ void write_data(void *addr, void* data, ENUM_TYPE type);
  * @param type The type of the data
  * @param data The data to be converted
  * @return Error code
-*/
+ */
 int convert_var(char *str, int size, ENUM_TYPE type, void *data);
 
 /**
@@ -39,7 +39,7 @@ int convert_var(char *str, int size, ENUM_TYPE type, void *data);
  * @param data The data to be written
  * @param typec The number of types composing the struct
  * @param typev The types composing the struct
-*/
+ */
 void convert_struct(char *str, int size, void *data, int typec, ENUM_TYPE *typev);
 
 int get_size(ENUM_TYPE type)
@@ -77,7 +77,7 @@ int get_size(ENUM_TYPE type)
     return s;
 }
 
-COLUMN *create_column_fa(char *title, int datasize, ENUM_TYPE* datatypes)
+COLUMN *create_column_fa(char *title, int datasize, ENUM_TYPE *datatypes)
 {
     COLUMN *col = (COLUMN *)malloc(sizeof(COLUMN));
     if (col != NULL)
@@ -172,7 +172,7 @@ int insert_value(COLUMN *col, void *value)
     {
         col->max_size += REALLOC_SIZE;
         col->data = (void **)realloc(col->data, col->max_size);
-        if(col->valid_index != INDEX_DELETED)
+        if (col->valid_index != INDEX_DELETED)
             col->index = (long long unsigned int *)realloc(col->index, col->max_size);
     }
     if (value == NULL)
@@ -220,10 +220,10 @@ int insert_value(COLUMN *col, void *value)
             }
         }
     }
-    if(col->valid_index != INDEX_DELETED)
+    if (col->valid_index != INDEX_DELETED)
     {
         col->index[col->size] = col->size;
-        if(check_index(col))
+        if (check_index(col))
         {
             col->valid_index = WAS_SORTED;
             update_index(col);
@@ -243,7 +243,8 @@ void free_column(COLUMN **col)
 {
     for (unsigned int i = 0; i < (*col)->size; i++)
     {
-        if((*col)->data[i] != NULL) {
+        if ((*col)->data[i] != NULL)
+        {
             unsigned long int size = 0;
             for (unsigned int j = 0; j < (*col)->datasize; j++)
             {
@@ -306,7 +307,7 @@ void convert_struct(char *str, int size, void *data, int typec, ENUM_TYPE *typev
 {
     ENUM_TYPE argv;
     unsigned long int bc = 0; // Byte counter
-    int wc = 0; // Word counter (for char)
+    int wc = 0;               // Word counter (for char)
     // If the data is NULL we want to only print NULL once, and not overflow with pointers pointing to nothing
     if (data == NULL)
         typec = 1;
@@ -343,84 +344,127 @@ void convert_value(COLUMN *col, unsigned long long int i, char *str, int size)
 
 void print_col(COLUMN *col, int index, int size)
 {
-    printf("%.*s\n", size, col->title);
+    // printf("%.*s\n", size, col->title);
     char s[size];
     char s2[size];
     for (int i = 0; i < col->size && (i < index || index == -1); i++)
     {
         convert_value(col, i, s, size);
-        snprintf(s2, size, "[%d] %s", i, s);
-        printf("%s\n", s2);
+        snprintf(s2, size, "%-*s", size, s);
+        printf("%s", s2);
+        if(i < col->size - 1 && (i < index || index == -1))
+            printf(" | ");
     }
+    printf("\n");
 }
 
 int compare_val(void *s1, void *s2, ENUM_TYPE *types, int size)
 {
-    if(s1 == NULL)
+    if (s1 == NULL)
     {
         return 1;
     }
-    unsigned long int s = 0;
-    unsigned long int bc = 0;
-    char res;
-    for (int i = 0; i < size; i++)
+    if(s2 == NULL)
     {
-        s = get_size(types[i]);
-        if (types[i] == STRING)
-        {
-            unsigned long int j = 0;
-
-            char *str1 = *(char **)(s1 + bc);
-            char *str2 = *(char **)(s2 + bc);
-            while (str1[j] != 0 && str2[j] != 0)
-                j++;
-            res = compare_data(str1, str2, j + 1);
-        }
-        else
-        {
-            res = compare_data(s1 + bc, s2 + bc, s);
-        }
-        if (res != 0)
-        {
-            return res;
-        }
+        return -1;
+    }
+    unsigned long int bc = 0;
+    for(unsigned int i = 0; i < size; i++)
+    {
+        int c = compare_data(s1 + bc, s2 + bc, types[i]);
+        if(c)
+            return c;
         update_size(&bc, i, types, size);
     }
     return 0;
 }
 
-int compare_data(void *d1, void *d2, int size)
+int compare_data(void *d1, void *d2, ENUM_TYPE type)
 {
-    unsigned long int bc;
-    for (bc = 0; bc < size; bc++)
+    if(d1 == NULL)
+        return -1;
+    if(d2 == NULL)
+        return 1;
+    switch (type)
     {
-        char a = *(char *)(d1 + bc);
-        char b = *(char *)(d2 + bc);
-        if (a < b)
+    case UINT:
+        if(*(unsigned int *)d1 < *(unsigned int *)d2)
             return -1;
-        if (a > b)
+        if(*(unsigned int *)d1 > *(unsigned int *)d2)
             return 1;
+        return 0;
+        break;
+    
+    case INT:
+        if(*((int *)d1) < *((int *)d2))
+            return -1;
+        if(*((int *)d1) > *((int *)d2))
+            return 1;
+        return 0;
+        break;
+    
+    case CHAR:
+        if(*(char *)d1 < *(char *)d2)
+            return -1;
+        if(*(char *)d1 > *(char *)d2)
+            return 1;
+        return 0;
+        break;
+    
+    case FLOAT:
+        if(*(float *)d1 < *(float *)d2)
+            return -1;
+        if(*(float *)d1 > *(float *)d2)
+            return 1;
+        return 0;
+        break;
+    
+    case DOUBLE:
+        if(*(double *)d1 < *(double *)d2)
+            return -1;
+        if(*(double *)d1 > *(double *)d2)
+            return 1;
+        return 0;
+        break;
+    
+    case STRING:
+        char *s1 = *(char **)d1;
+        char *s2 = *(char **)d2;
+        unsigned int i = 0;
+        while(s1[i] != 0 && s2[i] != 0)
+        {
+            int c = compare_data(&s1[i], &s2[i], CHAR);
+            if(c)
+                return c;
+            i++;
+        }
+        return 0;
+        break;
+    
+    default:
+        return 0;
+        break;
     }
-    return 0;
 }
 
 void *value_at(COLUMN *col, int n)
 {
-    if(n > col->size)
+    if (n > col->size)
         return NULL;
-    return (void *) col->data[n];
+    return (void *)col->data[n];
 }
 
 int are_occurences_of(COLUMN *col, void *val)
 {
     unsigned int c = 0;
-    for(int i = 0; i < col->size; i++)
+    for (int i = 0; i < col->size; i++)
     {
-        if(col->data[i] == NULL || val == NULL) {
-            if(col->data[i] == NULL && val == NULL)
+        if (col->data[i] == NULL || val == NULL)
+        {
+            if (col->data[i] == NULL && val == NULL)
                 c++;
         }
-        else if(compare_val(val, &col->data[i], col->type, col->datasize) == 0)
+        else if (compare_val(val, &col->data[i], col->type, col->datasize) == 0)
             c++;
     }
     return c;
@@ -429,10 +473,10 @@ int are_occurences_of(COLUMN *col, void *val)
 int are_less_than(COLUMN *col, void *val)
 {
     unsigned int c = 0;
-    for(int i = 0; i < col->size; i++)
+    for (int i = 0; i < col->size; i++)
     {
-        if(col->data[i] != NULL && val != NULL)
-            if(compare_val(val, &col->data[i], col->type, col->datasize) == 1)
+        if (col->data[i] != NULL && val != NULL)
+            if (compare_val(val, &col->data[i], col->type, col->datasize) == 1)
                 c++;
     }
     return c;
@@ -441,27 +485,30 @@ int are_less_than(COLUMN *col, void *val)
 int are_greater_than(COLUMN *col, void *val)
 {
     unsigned int c = 0;
-    for(int i = 0; i < col->size; i++)
+    for (int i = 0; i < col->size; i++)
     {
-        if(col->data[i] != NULL && val != NULL)
-            if(compare_val(val, &col->data[i], col->type, col->datasize) == -1)
+        if (col->data[i] != NULL && val != NULL)
+            if (compare_val(val, &col->data[i], col->type, col->datasize) == -1)
                 c++;
     }
     return c;
 }
 
-void print_col_by_index(COLUMN *col, int index, int size)
+void print_col_by_index(COLUMN *col, long long unsigned int *indexes, int index, int size)
 {
-    printf("%.*s\n", size, col->title);
+    // printf("%.*s\n", size, col->title);
     char s[size];
     char s2[size];
     for (int i = 0; i < col->size && (i < index || index == -1); i++)
     {
-        int it = col->index[i];
+        int it = indexes[i];
         convert_value(col, it, s, size);
-        snprintf(s2, size, "[%d] %s", it, s);
-        printf("%s\n", s2);
+        snprintf(s2, size, "%-*s", size, s);
+        printf("%s", s2);
+        if(i < col->size - 1 && (i < index || index == -1))
+            printf(" | ");
     }
+    printf("\n");
 }
 
 void erase_index(COLUMN *col)
@@ -483,23 +530,23 @@ void update_index(COLUMN *col)
 
 int search_value_in_column(COLUMN *col, void *val)
 {
-    if(col->valid_index != IS_SORTED)
+    if (col->valid_index != IS_SORTED)
         return -1;
     unsigned int hi = col->size;
     unsigned int lo = 0;
     while (hi != lo)
     {
         unsigned int pi = (hi - lo) / 2 + lo;
-        if(pi == hi || pi == lo)
+        if (pi == hi || pi == lo)
         {
             return 0;
         }
         int c = compare_val(value_at(col, pi), val, col->type, col->datasize);
-        if(c == -1)
+        if (c == -1)
         {
             hi = pi;
         }
-        else if(c == 1)
+        else if (c == 1)
         {
             lo = pi;
         }
@@ -511,7 +558,7 @@ int search_value_in_column(COLUMN *col, void *val)
     return 0;
 }
 
-void update_size(unsigned long int *bc, int index, ENUM_TYPE* types, int size)
+void update_size(unsigned long int *bc, int index, ENUM_TYPE *types, int size)
 {
     *bc += get_size(types[index]);
     // Adds padding for CHAR

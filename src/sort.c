@@ -16,7 +16,8 @@ void quicksort(COLUMN *col, unsigned int left, unsigned int right, int d)
     if(left < right && left >= 0)
     {
         int pi = partition(col, left, right, d);
-        quicksort(col, left, pi - 1, d);
+        if(pi != 0)
+            quicksort(col, left, pi - 1, d);
         quicksort(col, pi + 1, right, d);
     }
 }
@@ -66,11 +67,11 @@ void insertionsort(COLUMN *col, int d)
 
 void sort(COLUMN* col, int sort_dir)
 {
-    if(col->valid_index == -1)
+    if(col->valid_index == NOT_SORTED)
     {
         quicksort(col, 0, col->size - 1, sort_dir);
     }
-    else
+    else if(col->valid_index == WAS_SORTED || col->valid_index == IS_SORTED)
     {
         insertionsort(col, sort_dir);
     }

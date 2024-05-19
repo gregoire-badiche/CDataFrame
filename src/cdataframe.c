@@ -100,6 +100,16 @@ void display_cdataframe(CDATAFRAME *cdf, int index, int strsize)
     }
 }
 
+void display_cdataframe_by_index(CDATAFRAME *cdf, long long unsigned int *indexes, int index, int strsize)
+{
+    LNODE *current = cdf->head;
+    while (current != NULL)
+    {
+        print_col_by_index(current->data, indexes, index, strsize);
+        current = current->next;
+    }
+}
+
 void add_row(CDATAFRAME *cdf, void **values)
 {
     int s = 0;

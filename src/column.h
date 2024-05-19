@@ -90,7 +90,7 @@ void convert_value(COLUMN *col, unsigned long long int i, char *str, int size);
  */
 void print_col(COLUMN *col, int index, int size);
 
-void print_col_by_index(COLUMN *col, int index, int size);
+void print_col_by_index(COLUMN *col, long long unsigned int *indexes, int index, int size);
 
 /**
  * @brief Compare two values
@@ -167,8 +167,8 @@ int search_value_in_column(COLUMN *col, void *val);
  * @param index The index of the current type
  * @param types The array containing the types
  * @param size The size of the `types` array
-*/
-void update_size(unsigned long int *bc, int index, ENUM_TYPE* types, int size);
+ */
+void update_size(unsigned long int *bc, int index, ENUM_TYPE *types, int size);
 
 void write_data(void *addr, void *data, ENUM_TYPE type);
 
