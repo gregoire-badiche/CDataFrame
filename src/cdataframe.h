@@ -56,7 +56,7 @@ void display_cdataframe(CDATAFRAME *cdf, int index, int strsize);
 void display_cdataframe_by_index(CDATAFRAME *cdf, long long unsigned int *indexes, int index, int strsize);
 
 /**
- * @brief Add a rown to a dataframe
+ * @brief Add a row to a dataframe
  * @param cdf A pointer to the CDataFrame
  * @param values An array of pointers to values
  */

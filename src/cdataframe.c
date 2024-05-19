@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "list.h"
 #include "cdataframe.h"
@@ -56,7 +57,7 @@ int delete_column_by_name(CDATAFRAME *cdf, char *col_name)
     char found = 0;
     while (node->next != NULL && !found)
     {
-        if (node->data->title == col_name)
+        if (strcmp(node->data->title, col_name))
         {
             found = 1;
         }
@@ -67,12 +68,12 @@ int delete_column_by_name(CDATAFRAME *cdf, char *col_name)
     }
     if (found)
     {
-        node->prev->next = node->next;
-        if (node->next == NULL)
-            cdf->tail = node->prev;
-        node->next->prev = node->prev;
-        if (node->prev == NULL)
-            cdf->head = node->next;
+        // node->prev->next = node->next;
+        // if (node->next == NULL)
+        //     cdf->tail = node->prev;
+        // node->next->prev = node->prev;
+        // if (node->prev == NULL)
+        //     cdf->head = node->next;
         lst_delete_lnode(cdf, node);
     }
     return (int)found;
@@ -116,7 +117,7 @@ void add_row(CDATAFRAME *cdf, void **values)
     LNODE *n = cdf->head;
     while (n != NULL)
     {
-        insert_value(n->data, values + s);
+        insert_value(n->data, *(values + s));
         s++;
         n = n->next;
     }

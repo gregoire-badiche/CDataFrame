@@ -464,7 +464,7 @@ int are_occurences_of(COLUMN *col, void *val)
             if (col->data[i] == NULL && val == NULL)
                 c++;
         }
-        else if (compare_val(val, &col->data[i], col->type, col->datasize) == 0)
+        else if (compare_val(val, col->data[i], col->type, col->datasize) == 0)
             c++;
     }
     return c;
@@ -476,7 +476,7 @@ int are_less_than(COLUMN *col, void *val)
     for (int i = 0; i < col->size; i++)
     {
         if (col->data[i] != NULL && val != NULL)
-            if (compare_val(val, &col->data[i], col->type, col->datasize) == 1)
+            if (compare_val(val, col->data[i], col->type, col->datasize) == 1)
                 c++;
     }
     return c;
@@ -488,7 +488,7 @@ int are_greater_than(COLUMN *col, void *val)
     for (int i = 0; i < col->size; i++)
     {
         if (col->data[i] != NULL && val != NULL)
-            if (compare_val(val, &col->data[i], col->type, col->datasize) == -1)
+            if (compare_val(val, col->data[i], col->type, col->datasize) == -1)
                 c++;
     }
     return c;
@@ -534,28 +534,24 @@ int search_value_in_column(COLUMN *col, void *val)
         return -1;
     unsigned int hi = col->size;
     unsigned int lo = 0;
-    while (hi != lo)
+    while (hi >= lo)
     {
         unsigned int pi = (hi - lo) / 2 + lo;
-        if (pi == hi || pi == lo)
-        {
-            return 0;
-        }
         int c = compare_val(value_at(col, pi), val, col->type, col->datasize);
         if (c == -1)
         {
-            hi = pi;
+            lo = pi;
         }
         else if (c == 1)
         {
-            lo = pi;
+            hi = pi;
         }
         else
         {
-            return 1;
+            return pi;
         }
     }
-    return 0;
+    return -1;
 }
 
 void update_size(unsigned long int *bc, int index, ENUM_TYPE *types, int size)
