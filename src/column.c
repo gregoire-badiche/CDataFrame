@@ -138,13 +138,13 @@ void write_data(void *addr, void *data, ENUM_TYPE type)
 
     case STRING:
         char *str = *((char **)data);
-        unsigned int size = 1;
+        unsigned int size = 0;
         while (str[size] != '\0')
         {
             size++;
         }
         size++;
-        char *target = (char *)malloc(size);
+        char *target = (char *)malloc(size * sizeof(char));
         *((char **)addr) = target;
         for (unsigned int i = 0; i < size; i++)
         {
@@ -184,9 +184,10 @@ int insert_value(COLUMN *col, void *value)
         unsigned long s = 0, s2 = 0;
         for (int i = 0; i < col->datasize; i++)
         {
-            s += get_size(col->type[i]);
+            update_size(&s, i, col->type, col->datasize);
+            // s += get_size(col->type[i]);
         }
-        col->data[col->size] = (void *)malloc(s);
+        col->data[col->size] = (void *)malloc((s) * sizeof(char));
         for (int i = 0; i < col->datasize; i++)
         {
             ENUM_TYPE t = col->type[i];

@@ -259,11 +259,11 @@ CDATAFRAME *load_from_csv_fa(char *file_name, ENUM_TYPE *dftypes, int size)
             // Get the size of the chunk
             for (unsigned int k = 0; k < s; k++)
             {
-                int _ = k < s - 1 ? typecounter + 1 : typecounter + 2;
-                update_size(&size, typecounter, dftypes, _);
+                int _ = k < s - 1 ? tc + 2 : tc + 1;
+                update_size(&size, tc, dftypes, _);
             }
             ENUM_TYPE *t = (ENUM_TYPE *)malloc(sizeof(ENUM_TYPE) * s);
-            void *d = malloc(size);
+            void *d = malloc((size + 1) * sizeof(char));
             unsigned long int bc = 0;
             for (int k = 0; k < s; k++)
             {
@@ -310,7 +310,7 @@ CDATAFRAME *load_from_csv_fa(char *file_name, ENUM_TYPE *dftypes, int size)
                         _size++;
                     }
                     _size++;
-                    char *target = (char *)malloc(_size);
+                    char *target = (char *)malloc((_size + 1) * sizeof(char));
                     *((char **)(d + bc)) = target;
                     for (unsigned int l = 0; l < _size; l++)
                     {
@@ -324,7 +324,10 @@ CDATAFRAME *load_from_csv_fa(char *file_name, ENUM_TYPE *dftypes, int size)
                 default:
                     break;
                 }
-                update_size(&bc, k, dftypes + j * s, s);
+                {
+                    int _ = k < s - 1 ? tc + 2 : tc + 1;
+                    update_size(&bc, tc, dftypes, _);
+                }
                 tc++;
             }
             free_split(&sdata);

@@ -3,7 +3,8 @@
 
 int charcount(FILE *const f)
 {
-    int c, count = 0;
+    char c;
+    int count = 0;
     while (1)
     {
         c = fgetc(f);
@@ -77,7 +78,7 @@ char ***load_csv(char *filename, int **widths, int *height)
         char *str = (char *)malloc(sizeof(char) * (chars + 1));
         fgets(str, chars + 1, f);
         fgetc(f);
-        int const sc = sccounts[i];
+        int const sc = sccounts[i] + 1;
         data[i] = (char **)malloc(sizeof(char *) * sc);
         char *ptr = str;
         int k = 0;
@@ -91,7 +92,7 @@ char ***load_csv(char *filename, int **widths, int *height)
                         continue;
                 data[i][k] = ptr;
                 str[j] = '\0';
-                ptr += ++j;
+                ptr = &str[++j];
                 k++;
             }
         }
