@@ -235,8 +235,13 @@ int insert_value(COLUMN *col, void *value)
 
 void delete_value(COLUMN *col, unsigned int index)
 {
-    free(col->data);
-    col->data = NULL;
+    if(index >= col->size)
+        return;
+    if(col->data[index] == NULL)
+        return;
+    free(col->data[index]);
+    col->data[index] = NULL;
+    update_index(col);
 }
 
 void free_column(COLUMN **col)
@@ -534,7 +539,7 @@ int search_value_in_column(COLUMN *col, void *val)
         return -1;
     unsigned int hi = col->size;
     unsigned int lo = 0;
-    while (hi >= lo)
+    while (hi > lo)
     {
         unsigned int pi = (hi - lo) / 2 + lo;
         int c = compare_val(value_at(col, pi), val, col->type, col->datasize);

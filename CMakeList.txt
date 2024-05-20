@@ -1,0 +1,17 @@
+cmake_minimum_required(VERSION 3.27)
+project(CDataFrame C)
+
+set(CMAKE_C_STANDARD 17)
+
+add_executable(CDataFrame src/app.c
+        src/column.c
+        src/column.h
+        src/cdataframe.c
+        src/cdataframe.h
+        src/sort.c
+        src/sort.h
+        src/list.c
+        src/list.h
+        src/csv.c
+        src/csv.h
+)

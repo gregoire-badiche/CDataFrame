@@ -68,14 +68,15 @@ int main(int argc, char const *argv[])
 
     free(data);
 
-    sort(get_element(cdf, 0)->data, DESC);
+    sort(get_element(cdf, 0)->data, ASC);
 
     printf("\nAfter sorting and adding an element :\n");
     
     display_cdataframe_by_index(cdf, get_element(cdf, 0)->data->index, -1, 20);
 
     delete_column(cdf, 3);
-    printf("\nThe dataframe after deleting the address column\n");
+    delete_row(cdf, 1);
+    printf("\nThe dataframe after deleting the address column, and the 2nd row (Alicia Barry)\n");
     display_cdataframe_by_index(cdf, get_element(cdf, 0)->data->index, -1, 20);
 
     char f = 'f';
@@ -83,10 +84,12 @@ int main(int argc, char const *argv[])
     printf("\nIn the dataframe, there is %d women over %d persons\n", are_occurences_of(get_element(cdf, 1)->data, &f), get_cdataframe_cols_size(cdf));
 
     PERSON p2 = {"Emily", "Burgh"};
+    PERSON p3 = {"Eric", "Zing"};
 
-    sort(get_element(cdf, 2)->data, ASC);
+    sort(get_element(cdf, 2)->data, DESC);
 
-    printf("Emily Burgh is at indexed at %d\n", search_value_in_column(get_element(cdf, 2)->data, &p2));
+    printf("Emily Burgh is indexed at %d, and", search_value_in_column(get_element(cdf, 2)->data, &p2));
+    printf(" Eric Zing is indexed at %d.\n", search_value_in_column(get_element(cdf, 2)->data, &p3));
 
     save_into_csv(cdf, "/home/gregoire/Development/CDataFrame/data2.csv");
 

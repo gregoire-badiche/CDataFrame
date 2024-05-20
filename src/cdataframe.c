@@ -57,7 +57,7 @@ int delete_column_by_name(CDATAFRAME *cdf, char *col_name)
     char found = 0;
     while (node->next != NULL && !found)
     {
-        if (strcmp(node->data->title, col_name))
+        if (!strcmp(node->data->title, col_name))
         {
             found = 1;
         }
@@ -68,12 +68,6 @@ int delete_column_by_name(CDATAFRAME *cdf, char *col_name)
     }
     if (found)
     {
-        // node->prev->next = node->next;
-        // if (node->next == NULL)
-        //     cdf->tail = node->prev;
-        // node->next->prev = node->prev;
-        // if (node->prev == NULL)
-        //     cdf->head = node->next;
         lst_delete_lnode(cdf, node);
     }
     return (int)found;
@@ -263,9 +257,24 @@ CDATAFRAME *load_from_csv_fa(char *file_name, ENUM_TYPE *dftypes, int size)
         for (int j = 0; j < widths[i]; j++)
         {
             unsigned int typecounter = 0;
-            char *nsdata = csv[i][j];
+            char **nsdata1 = csv[i];
+            char *nsdata = NULL;
+            if(nsdata1 != NULL)
+                nsdata = nsdata1[j];
             int s;
-            char **sdata = split(nsdata, ',', &s);
+            char **sdata = NULL;
+            if(nsdata != NULL && nsdata[0] != '\0')
+                sdata = split(nsdata, ',', &s);
+            void *d;
+            ENUM_TYPE *t;
+            if(sdata == NULL)
+            {
+                d = NULL;
+                for(int k = 0; k < s; k++)
+                    t[k] = dftypes[tc];
+            }
+            else
+            {
             unsigned long int size = 0;
             // Get the size of the chunk
             for (unsigned int k = 0; k < s; k++)
@@ -273,8 +282,8 @@ CDATAFRAME *load_from_csv_fa(char *file_name, ENUM_TYPE *dftypes, int size)
                 int _ = k < s - 1 ? tc + 2 : tc + 1;
                 update_size(&size, tc, dftypes, _);
             }
-            ENUM_TYPE *t = (ENUM_TYPE *)malloc(sizeof(ENUM_TYPE) * s);
-            void *d = malloc((size + 1) * sizeof(char));
+            t = (ENUM_TYPE *)malloc(sizeof(ENUM_TYPE) * s);
+            d = malloc((size + 1) * sizeof(char));
             unsigned long int bc = 0;
             for (int k = 0; k < s; k++)
             {
@@ -315,7 +324,7 @@ CDATAFRAME *load_from_csv_fa(char *file_name, ENUM_TYPE *dftypes, int size)
 
                 case STRING:
                 {
-                    unsigned int _size = 1;
+                    unsigned int _size = 0;
                     while (data[_size] != '\0')
                     {
                         _size++;
@@ -342,6 +351,7 @@ CDATAFRAME *load_from_csv_fa(char *file_name, ENUM_TYPE *dftypes, int size)
                 tc++;
             }
             free_split(&sdata);
+            }
             if (i == 0)
             {
                 char *title = (char *)malloc(sizeof(char) * 8);
@@ -397,7 +407,7 @@ char *data_to_csv(FILE *f, void *data, ENUM_TYPE *types, int size)
     unsigned long int bc = 0;
     for (int i = 0; i < size; i++)
     {
-        switch (types[i])
+        if(data != NULL) switch (types[i])
         {
         case UINT:
             fprintf(f, "%u", *(unsigned int *)(data + bc));
@@ -453,4 +463,5 @@ void save_into_csv(CDATAFRAME *cdf, char *file_name)
                 fprintf(f, "\n");
         }
     }
+    fclose(f);
 }

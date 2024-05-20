@@ -90,9 +90,13 @@ char ***load_csv(char *filename, int **widths, int *height)
                 if (j != 0)
                     if (str[j - 1] == '\\')
                         continue;
+                if(j == 0)
+                    ptr = NULL;
                 data[i][k] = ptr;
                 str[j] = '\0';
                 ptr = &str[++j];
+                if(j < chars && str[j] == ';')
+                    ptr = NULL;
                 k++;
             }
         }
@@ -120,6 +124,11 @@ void free_load_csv(char ****pos, int height)
 
 char **split(char *str, char delimiter, int *sections)
 {
+    if(str == NULL)
+    {
+        *sections = 0;
+        return NULL;
+    }
     char **res;
     *sections = 1;
     int i = 0;
@@ -143,6 +152,11 @@ char **split(char *str, char delimiter, int *sections)
                     continue;
             str[i] = '\0';
             res[c] = &str[i] + 1;
+            if(str[i + 1] == delimiter)
+            {
+                *sections = 0;
+                return NULL;
+            }
             c++;
         }
         i++;
